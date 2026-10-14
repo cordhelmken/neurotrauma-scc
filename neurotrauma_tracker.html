@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adult Neurotrauma Self-Study Curriculum Tracker</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --success: #22c55e;
+      --warning: #eab308;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      position: sticky;
+      top: 12px;
+      z-index: 10;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    h1 { margin: 0 0 8px 0; font-size: 1.5rem; color: var(--accent); }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 16px; }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .progress-bar-bg {
+      width: 100%;
+      height: 12px;
+      background: var(--bg);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .controls {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: all 0.2s;
+    }
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    .module {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .module.active-week { border: 2px solid var(--accent); }
+    .module-header {
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .module-title { font-weight: 700; font-size: 1.1rem; }
+    .badge {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--bg);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .badge.current {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    .module-body { padding: 20px; }
+    .goal {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      border-radius: 0 6px 6px 0;
+    }
+    .section-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin: 16px 0 8px 0;
+      font-weight: 700;
+    }
+    .task-list { list-style: none; padding: 0; margin: 0; }
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.15s;
+    }
+    .task-item:hover { background: rgba(255, 255, 255, 0.02); }
+    .task-item input[type="checkbox"] {
+      margin-top: 4px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--success);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+    .task-text { font-size: 0.94rem; flex: 1; }
+    a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    a:hover { text-decoration: underline; }
+    .pill-link {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      margin-left: 6px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 95px;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      margin-top: 8px;
+      resize: vertical;
+    }
+    textarea:focus { outline: none; border-color: var(--accent); }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Adult Neurotrauma Self-Study Curriculum</h1>
+    <div class="subtitle">Surgical Critical Care Fellowship | 9-Week Schedule (Started Oct 13, 2026)</div>
+    <div class="progress-header">
+      <span id="progress-text">0 / 0 Tasks Completed</span>
+      <span id="progress-percent">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="controls">
+      <button onclick="exportNotes()">📥 Export All Trial Cards & Notes (.txt)</button>
+      <button onclick="resetProgress()">🔄 Reset All Checkboxes</button>
+    </div>
+  </header>
+
+  <!-- Core Library -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-title">📚 Core Reference Library (Download First)</span>
+      <span class="badge">Foundational Textbooks</span>
+    </div>
+    <div class="module-body">
+      <ul class="task-list">
+        <li class="task-item"><input type="checkbox" id="c1"><label for="c1" class="task-text"><strong>ACS Best Practices in the Management of TBI (2024)</strong> — Integrates BTF + SIBICC. <a href="https://www.facs.org/media/mkej5u3b/tbi_guidelines.pdf" target="_blank" class="pill-link">Free PDF (FACS)</a></label></li>
+        <li class="task-item"><input type="checkbox" id="c2"><label for="c2" class="task-text"><strong>BTF Guidelines for the Management of Severe TBI, 4th Ed. (2016)</strong> — Reference standard; Level I against steroids. <a href="https://braintrauma.org/coma/guidelines/severe-tbi" target="_blank" class="pill-link">BTF Web</a> <a href="https://pubmed.ncbi.nlm.nih.gov/27654000/" target="_blank" class="pill-link">PubMed</a></label></li>
+        <li class="task-item"><input type="checkbox" id="c3"><label for="c3" class="task-text"><strong>SIBICC I (2019)</strong> — Hawryluk GWJ, et al. ICP-only tiered algorithm. <a href="https://pubmed.ncbi.nlm.nih.gov/31659383/" target="_blank" class="pill-link">PubMed</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6863785/" target="_blank" class="pill-link">PMC Free Text</a></label></li>
+        <li class="task-item"><input type="checkbox" id="c4"><label for="c4" class="task-text"><strong>SIBICC II (2020)</strong> — Chesnut R, et al. Combined ICP + PbtO2 tiered algorithm. <a href="https://pubmed.ncbi.nlm.nih.gov/31965267/" target="_blank" class="pill-link">PubMed</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7210240/" target="_blank" class="pill-link">PMC Free Text</a></label></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Module 1 -->
+  <div class="module active-week">
+    <div class="module-header">
+      <span class="module-title">Module 1: Foundations — Pathophysiology, ICP & CPP</span>
+      <span class="badge current">🟢 Week 1: Oct 13 – Oct 19, 2026</span>
+    </div>
+    <div class="module-body">
+      <div class="goal"><strong>Goal:</strong> Master Monro-Kellie doctrine, secondary injury cascade, ICP/CPP relationship, and cerebral autoregulation.</div>
+      <div class="section-label">Core Readings</div>
+      <ul class="task-list">
+        <li class="task-item"><input type="checkbox" id="m1_1"><label for="m1_1" class="task-text"><strong>ACS Best Practices (2024):</strong> Read (1) Introduction, (2) Goals of Treatment / Table 4 (ICP &le;22, CPP &ge;60, PbtO2 &ge;15, SpO2 &ge;94%, PaO2 80-100, PaCO2 35-45), and (3) Assessment of Cerebral Autoregulation (MAP challenge). <a href="https://www.facs.org/media/mkej5u3b/tbi_guidelines.pdf" target="_blank" class="pill-link">PDF</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m1_2"><label for="m1_2" class="task-text"><strong>Stocchetti & Maas (NEJM 2014):</strong> "Traumatic Intracranial Hypertension" — Focus on the staircase figure & P-V curve. <a href="https://pubmed.ncbi.nlm.nih.gov/24869722/" target="_blank" class="pill-link">PubMed</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m1_3"><label for="m1_3" class="task-text"><strong>Stocchetti N, et al. (Lancet Neurol 2017):</strong> "Severe TBI: Targeted Management in the ICU" — Whole-picture review. <a href="https://pubmed.ncbi.nlm.nih.gov/28504109/" target="_blank" class="pill-link">PubMed</a> <a href="https://www.repository.cam.ac.uk/bitstreams/c6e1e54b-2732-4721-9ff4-38ceee9f1535/download" target="_blank" class="pill-link">Full PDF</a></label></li>
+      </ul>
+      <div class="section-label">Videos & Mastery Checks</div>
+      <ul class="task-list">
+        <li class="task-item"><input type="checkbox" id="m1_4"><label for="m1_4" class="task-text"><strong>Video / FOAMed:</strong> Strong Medicine ICP Primer & IBCC TBI Chapter. <a href="https://www.youtube.com/results?search_query=Strong+Medicine+Intracranial+Pressure" target="_blank" class="pill-link">YouTube</a> <a href="https://emcrit.org/ibcc/tbi/" target="_blank" class="pill-link">IBCC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m1_5"><label for="m1_5" class="task-text"><strong>Concept Check:</strong> Explain "ICP dose" (intensity &times; duration), why CPP &gt;70 is avoided (ARDS), and lower critical ICP thresholds (~18 mmHg) in older (&ge;55) and female patients.</label></li>
+      </ul>
+      <div class="section-label">Week 1 Synthesis & Notes</div>
+      <textarea id="notes_m1" placeholder="Jot down Week 1 physiology notes, MAP challenge steps, and core parameter targets here..."></textarea>
+    </div>
+  </div>
+
+  <!-- Module 2 -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-title">Module 2: Tiered Medical Management of ICP</span>
+      <span class="badge">Weeks 2–3: Oct 20 – Nov 2, 2026</span>
+    </div>
+    <div class="module-body">
+      <div class="goal"><strong>Goal:</strong> Run the SIBICC tiers (Tier 0 to Tier 3) from memory and synthesize key medical therapy trials.</div>
+      <div class="section-label">Core Readings & Landmark Trials (In Order)</div>
+      <ul class="task-list">
+        <li class="task-item"><input type="checkbox" id="m2_1"><label for="m2_1" class="task-text"><strong>SIBICC I (2019) & ACS Tiered Therapy Section:</strong> Master Tiers 0, 1, 2, and 3 + inter-tier checks. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6863785/" target="_blank" class="pill-link">SIBICC I PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m2_2"><label for="m2_2" class="task-text"><strong>1. Eurotherm3235 (NEJM 2015):</strong> Hypothermia (32–35&deg;C) for ICP &gt;20 stopped early for harm. <a href="https://pubmed.ncbi.nlm.nih.gov/26444221/" target="_blank" class="pill-link">PubMed</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m2_3"><label for="m2_3" class="task-text"><strong>2. POLAR (JAMA 2018):</strong> Early prophylactic hypothermia — no benefit, more pneumonia. <a href="https://pubmed.ncbi.nlm.nih.gov/30357266/" target="_blank" class="pill-link">PubMed</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6583606/" target="_blank" class="pill-link">PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m2_4"><label for="m2_4" class="task-text"><strong>3. COBI (JAMA 2021):</strong> Continuous 20% HTS infusion — no 6-mo GOS-E benefit. <a href="https://pubmed.ncbi.nlm.nih.gov/34032829/" target="_blank" class="pill-link">PubMed</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8150692/" target="_blank" class="pill-link">PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m2_5"><label for="m2_5" class="task-text"><strong>4. CRASH-1 (Lancet 2004/2005) & HTS vs. Mannitol Reviews:</strong> Steroids contraindicated; Na &lt;155, Osm &lt;320. <a href="https://pubmed.ncbi.nlm.nih.gov/15474134/" target="_blank" class="pill-link">CRASH-1 PubMed</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m2_6"><label for="m2_6" class="task-text"><strong>Deliverable:</strong> Build Mannitol vs. HTS table & write SIBICC I Tiers 0–3 from memory below.</label></li>
+      </ul>
+      <textarea id="notes_m2" placeholder="Trial Cards (Eurotherm3235, POLAR, COBI), Mannitol vs. HTS comparison, and memory recall of SIBICC Tiers 0-3..."></textarea>
+    </div>
+  </div>
+
+  <!-- Module 3 -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-title">Module 3: Surgical Indications — Craniectomy & Evacuation</span>
+      <span class="badge">Weeks 4–5: Nov 3 – Nov 16, 2026</span>
+    </div>
+    <div class="module-body">
+      <div class="goal"><strong>Goal:</strong> Know who goes to the OR, when, and what DECRA, RESCUEicp, and RESCUE-ASDH actually showed.</div>
+      <ul class="task-list">
+        <li class="task-item"><input type="checkbox" id="m3_1"><label for="m3_1" class="task-text"><strong>BTF 2020 Decompressive Craniectomy Update:</strong> Hawryluk GWJ, et al. (Neurosurgery). <a href="https://pubmed.ncbi.nlm.nih.gov/32761068/" target="_blank" class="pill-link">PubMed</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7426189/" target="_blank" class="pill-link">PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m3_2"><label for="m3_2" class="task-text"><strong>Solomou G, et al. (JTACS 2024):</strong> "Decompressive Craniectomy in Trauma: What You Need to Know". <a href="https://pubmed.ncbi.nlm.nih.gov/39137371/" target="_blank" class="pill-link">PubMed</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11446508/" target="_blank" class="pill-link">PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m3_3"><label for="m3_3" class="task-text"><strong>1. DECRA (NEJM 2011; 12-mo J Neurotrauma 2020):</strong> Early bifrontal DC for ICP &gt;20 in diffuse TBI worsened functional outcomes. <a href="https://pubmed.ncbi.nlm.nih.gov/21434843/" target="_blank" class="pill-link">2011 PubMed</a> <a href="https://pubmed.ncbi.nlm.nih.gov/32027212/" target="_blank" class="pill-link">2020 PubMed</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m3_4"><label for="m3_4" class="task-text"><strong>2. RESCUEicp (NEJM 2016; 24-mo JAMA Neurol 2022):</strong> Last-tier DC for ICP &gt;25 reduced mortality (33.5% vs 54%) and improved 12-24 mo favorable outcomes. <a href="https://pubmed.ncbi.nlm.nih.gov/27602507/" target="_blank" class="pill-link">2016 PubMed</a> <a href="https://pubmed.ncbi.nlm.nih.gov/35666534/" target="_blank" class="pill-link">2022 PubMed</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m3_5"><label for="m3_5" class="task-text"><strong>3. RESCUE-ASDH (NEJM 2023):</strong> Primary DC vs. craniotomy for acute SDH — similar 12-mo outcomes. <a href="https://pubmed.ncbi.nlm.nih.gov/37092792/" target="_blank" class="pill-link">PubMed</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m3_6"><label for="m3_6" class="task-text"><strong>Deliverable:</strong> Build DECRA vs. RESCUEicp comparison table & note large flap size (&ge;12&times;15 cm).</label></li>
+      </ul>
+      <textarea id="notes_m3" placeholder="DECRA vs. RESCUEicp Comparison Table & RESCUE-ASDH Trial Card notes..."></textarea>
+    </div>
+  </div>
+
+  <!-- Module 4 -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-title">Module 4 & 4A: Neuromonitoring & Intracranial Compliance (RAP/PSI)</span>
+      <span class="badge">Weeks 6–7: Nov 17 – Nov 30, 2026</span>
+    </div>
+    <div class="module-body">
+      <div class="goal"><strong>Goal:</strong> Understand ICP, PbtO2, the SIBICC II 4-phenotype matrix, and waveform compliance indices (RAP & PSI).</div>
+      <div class="section-label">Module 4: Multimodal Monitoring & Trials</div>
+      <ul class="task-list">
+        <li class="task-item"><input type="checkbox" id="m4_1"><label for="m4_1" class="task-text"><strong>Core Reviews:</strong> SIBICC II (2020), Zoerle (Lancet Neurol 2024), & Lindblad (Acta Neurochir 2022). <a href="https://pubmed.ncbi.nlm.nih.gov/39152029/" target="_blank" class="pill-link">Zoerle 2024</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9705453/" target="_blank" class="pill-link">Lindblad PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m4_2"><label for="m4_2" class="task-text"><strong>1. BEST TRIP (NEJM 2012) & SYNAPSE-ICU (Lancet Neurol 2021):</strong> Protocol comparison vs. real-world mortality benefit of ICP monitoring. <a href="https://pubmed.ncbi.nlm.nih.gov/23234472/" target="_blank" class="pill-link">BEST TRIP</a> <a href="https://pubmed.ncbi.nlm.nih.gov/34146513/" target="_blank" class="pill-link">SYNAPSE-ICU</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m4_3"><label for="m4_3" class="task-text"><strong>2. BOOST-II (2017), OXY-TC (2023), & COGiTATE (2021):</strong> Brain tissue oxygen & CPPopt trials. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5679063/" target="_blank" class="pill-link">BOOST-II PMC</a> <a href="https://pubmed.ncbi.nlm.nih.gov/37863590/" target="_blank" class="pill-link">OXY-TC</a> <a href="https://pubmed.ncbi.nlm.nih.gov/34407385/" target="_blank" class="pill-link">COGiTATE</a></label></li>
+      </ul>
+      <div class="section-label">Sub-Section 4A: Intracranial Compliance (RAP Index & Pulse Shape Index)</div>
+      <ul class="task-list">
+        <li class="task-item"><input type="checkbox" id="m4_4"><label for="m4_4" class="task-text"><strong>Bögli SY, et al. (Crit Care 2025) & Hall/O'Kane (2016):</strong> Fig. 5 mapping RAP & PSI onto P-V curve. <a href="https://pubmed.ncbi.nlm.nih.gov/40165332/" target="_blank" class="pill-link">Bögli 2025</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5025501/" target="_blank" class="pill-link">Hall 2016 PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m4_5"><label for="m4_5" class="task-text"><strong>Kazimierska (Crit Care 2023) & Svedung Wettervik (Crit Care 2026):</strong> PSI waveform classes & 321-patient validation limits. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10656987/" target="_blank" class="pill-link">Kazimierska PMC</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC13159340/" target="_blank" class="pill-link">Wettervik 2026 PMC</a></label></li>
+      </ul>
+      <textarea id="notes_m4" placeholder="Write out the SIBICC II 4-phenotype matrix, PbtO2 tiers, and RAP vs. PSI waveform interpretation..."></textarea>
+    </div>
+  </div>
+
+  <!-- Module 5 -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-title">Module 5: Prognostication & Outcomes</span>
+      <span class="badge">Week 8: Dec 1 – Dec 7, 2026</span>
+    </div>
+    <div class="module-body">
+      <div class="goal"><strong>Goal:</strong> Use IMPACT and CRASH calculators appropriately and understand their overprediction of mortality in modern cohorts.</div>
+      <ul class="task-list">
+        <li class="task-item"><input type="checkbox" id="m5_1"><label for="m5_1" class="task-text"><strong>Maas AIR, et al. (Lancet Neurol 2022 Commission):</strong> "TBI: Progress and Challenges". <a href="https://pubmed.ncbi.nlm.nih.gov/36183712/" target="_blank" class="pill-link">PubMed</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10427240/" target="_blank" class="pill-link">PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m5_2"><label for="m5_2" class="task-text"><strong>External Validations:</strong> Dijkland (J Neurotrauma 2020) & Yue TRACK-TBI Validation (J Neurosurg 2024). <a href="https://pubmed.ncbi.nlm.nih.gov/31099301/" target="_blank" class="pill-link">Dijkland</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11010725/" target="_blank" class="pill-link">Yue 2024 PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m5_3"><label for="m5_3" class="task-text"><strong>Hands-On:</strong> Run 3 real ICU cases through IMPACT and CRASH online calculators. <a href="http://www.tbi-impact.org/?p=impact/calc" target="_blank" class="pill-link">IMPACT Calc</a> <a href="https://www.LSHTM.ac.uk/research/centres-projects-groups/crash-prognostic-model" target="_blank" class="pill-link">CRASH Calc</a></label></li>
+      </ul>
+      <textarea id="notes_m5" placeholder="Notes on IMPACT (Core/Extended/Lab) vs. CRASH variables and family counseling caveats..."></textarea>
+    </div>
+  </div>
+
+  <!-- Module 6 -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-title">Module 6: Adjuncts & Special Topics</span>
+      <span class="badge">Week 9: Dec 8 – Dec 14, 2026</span>
+    </div>
+    <div class="module-body">
+      <div class="goal"><strong>Goal:</strong> Master coagulopathy/TXA, targeted temperature control, prophylaxis timing, and penetrating TBI guidelines.</div>
+      <ul class="task-list">
+        <li class="task-item"><input type="checkbox" id="m6_1"><label for="m6_1" class="task-text"><strong>Coagulopathy / TXA:</strong> CRASH-3 (Lancet 2019) & Fletcher-Sandersjöö Review (Acta Neurochir 2025). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6853170/" target="_blank" class="pill-link">CRASH-3 PMC</a> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12089152/" target="_blank" class="pill-link">Fletcher 2025 PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m6_2"><label for="m6_2" class="task-text"><strong>Temperature Control:</strong> ESICM/NACCS Consensus (Crit Care 2024) — Normothermia 36.0–37.5&deg;C. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11106996/" target="_blank" class="pill-link">PMC</a></label></li>
+        <li class="task-item"><input type="checkbox" id="m6_3"><label for="m6_3" class="task-text"><strong>Penetrating TBI:</strong> BTF Penetrating TBI Guidelines, 2nd Ed. (Neurosurgery 2026). <a href="https://pubmed.ncbi.nlm.nih.gov/41697053/" target="_blank" class="pill-link">Guidelines PubMed</a> <a href="https://journals.lww.com/neurosurgery/abstract/10.1227/neu.0000000000003739~treatment-algorithms-from-the-brain-trauma-foundation" target="_blank" class="pill-link">Algorithms</a></label></li>
+      </ul>
+      <textarea id="notes_m6" placeholder="CRASH-3 Trial Card, VTE/seizure prophylaxis timing, and Penetrating TBI algorithm notes..."></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  const textareas = document.querySelectorAll('textarea');
+
+  function updateProgress() {
+    let completed = 0;
+    checkboxes.forEach(cb => {
+      const parent = cb.closest('.task-item');
+      if (cb.checked) {
+        completed++;
+        parent.classList.add('completed');
+      } else {
+        parent.classList.remove('completed');
+      }
+      localStorage.setItem('nt_cb_' + cb.id, cb.checked);
+    });
+    const total = checkboxes.length;
+    const pct = Math.round((completed / total) * 100);
+    document.getElementById('progress-text').textContent = `${completed} / ${total} Tasks Completed`;
+    document.getElementById('progress-percent').textContent = `${pct}%`;
+    document.getElementById('progress-fill').style.width = `${pct}%`;
+  }
+
+  checkboxes.forEach(cb => {
+    const saved = localStorage.getItem('nt_cb_' + cb.id);
+    if (saved === 'true') cb.checked = true;
+    cb.addEventListener('change', updateProgress);
+  });
+
+  textareas.forEach(ta => {
+    const savedText = localStorage.getItem('nt_ta_' + ta.id);
+    if (savedText) ta.value = savedText;
+    ta.addEventListener('input', () => {
+      localStorage.setItem('nt_ta_' + ta.id, ta.value);
+    });
+  });
+
+  function exportNotes() {
+    let output = "ADULT NEUROTRAUMA SELF-STUDY CURRICULUM NOTES\n==============================================\n\n";
+    textareas.forEach(ta => {
+      const modTitle = ta.closest('.module').querySelector('.module-title').textContent;
+      output += `### ${modTitle}\n${ta.value || '(No notes entered)'}\n\n----------------------------------------------\n\n`;
+    });
+    const blob = new Blob([output], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Neurotrauma_Curriculum_Notes.txt';
+    a.click();
+  }
+
+  function resetProgress() {
+    if (confirm("Reset all checkboxes? (Your typed notes will be kept)")) {
+      checkboxes.forEach(cb => {
+        cb.checked = false;
+        localStorage.removeItem('nt_cb_' + cb.id);
+      });
+      updateProgress();
+    }
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
